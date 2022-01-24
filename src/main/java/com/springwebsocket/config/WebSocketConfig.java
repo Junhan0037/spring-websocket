@@ -1,37 +1,25 @@
 package com.springwebsocket.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+/**
+ * Handler 를 이용하여 웹소켓을 활성화 하기 위한 Config 파일 입니다.
+ * 웹소켓에 접속하기 위한 endpoint 는 "/ws/chat"으로 설정하고 도메인이 다른 서버에서도 접속 가능하도록 CORS: setAllowedOrigins("*")를 설정
+ */
 @Configuration
-@EnableWebSocketMessageBroker // WebSocket 서버를 활성화하는 데 사용
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket // 웹소켓을 활성화
+@RequiredArgsConstructor
+public class WebSocketConfig implements WebSocketConfigurer {
 
-    /**
-     * 클라이언트가 웹 소켓 서버에 연결하는 데 사용할 웹 소켓 엔드 포인트를 등록
-     * 엔드 포인트 구성에 withSockJS ()를 사용
-     * SockJS는 웹 소켓을 지원하지 않는 브라우저에 폴백 옵션을 활성화하는 데 사용
-     */
+    private final WebSocketChatHandler webSocketChatHandler;
+
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS();
-    }
-
-    /**
-     * 한 클라이언트에서 다른 클라이언트로 메시지를 라우팅 하는 데 사용될 메시지 브로커를 구성
-     */
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // "/app" 시작되는 메시지가 message-handling methods 로 라우팅 되어야 한다는 것을 명시
-        registry.setApplicationDestinationPrefixes("/app");
-
-        // "/topic" 시작되는 메시지가 메시지 브로커로 라우팅 되도록 정의
-        // 메시지 브로커는 특정 주제를 구독 한 연결된 모든 클라이언트에게 메시지를 broadcast
-        // 인 메모리 브로커 활성화 (RabbitMQ, ActiveMQ 같은 메시지 브로커 사용 가능)
-        registry.enableSimpleBroker("/topic");
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(webSocketChatHandler, "/ws/chat").setAllowedOrigins("*");
     }
 
 }

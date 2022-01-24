@@ -13,6 +13,9 @@ repositories {
 }
 
 dependencies {
+    // Web
+    implementation 'org.springframework.boot:spring-boot-stater-web'
+
     // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
