@@ -5,6 +5,11 @@
 - Spring WebSocket
 
 
+## Branch
+- `chatting-server` : 여러개의 채팅방 서버
+- `chatting-basic` : 하나의 채팅방 일괄 서버
+
+
 ## WebSocket
 
 Web Browser에서 Request를 보내면 Server는 Response를 줍니다.
