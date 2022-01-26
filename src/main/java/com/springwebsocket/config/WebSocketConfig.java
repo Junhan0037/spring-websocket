@@ -1,26 +1,34 @@
 package com.springwebsocket.config;
 
-import com.springwebsocket.handler.WebSocketChatHandler;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-/**
- * Handler 를 이용하여 웹소켓을 활성화 하기 위한 Config 파일 입니다.
- * 웹소켓에 접속하기 위한 endpoint 는 "/ws/chat"으로 설정하고 도메인이 다른 서버에서도 접속 가능하도록 CORS: setAllowedOrigins("*")를 설정
- */
 @Configuration
-@EnableWebSocket // 웹소켓을 활성화
-@RequiredArgsConstructor
-public class WebSocketConfig implements WebSocketConfigurer {
+@EnableWebSocketMessageBroker // Stomp 사용
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final WebSocketChatHandler webSocketChatHandler;
 
+    /**
+     * pub/sub 메시징을 구현하기 위해
+     * 메시지를 발행하는 요청의 prefix는 "/pub"으로 시작하도록 설정
+     * 메세지를 구독하는 요청의 prefix는 "/sub"로 시작하도록 설정
+     */
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketChatHandler, "/ws/chat").setAllowedOrigins("*");
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/sub");
+        config.setApplicationDestinationPrefixes("/pub");
+    }
+
+    /**
+     * Stomp WebSocket의 연결 endpoint는 "/ws-stomp"로 설정
+     * 따라서 개발서버의 접속 주소는 다음과 같이 됩니다 "ws://localhost:8080/ws-stomp"
+     */
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*").withSockJS();
     }
 
 }
